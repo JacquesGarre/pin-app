@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pinz/src/pin/pin.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class PinForm extends StatefulWidget {
   final Pin? pin;
@@ -15,12 +17,16 @@ class PinForm extends StatefulWidget {
 class PinFormState extends State<PinForm> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
+  LatLng? _markerPosition;
 
   @override
   void initState() {
     super.initState();
     if (widget.pin != null) {
       _titleController.text = widget.pin!.title;
+      if (widget.pin!.latitude != null && widget.pin!.longitude != null) {
+        _markerPosition = LatLng(widget.pin!.latitude!, widget.pin!.longitude!);
+      }
     }
   }
 
@@ -35,6 +41,8 @@ class PinFormState extends State<PinForm> {
       final newPin = Pin(
         widget.pin?.id ?? DateTime.now().millisecondsSinceEpoch,
         _titleController.text,
+        _markerPosition?.latitude,
+        _markerPosition?.longitude,
       );
       if (widget.pin == null) {
         widget.controller.addPin(newPin);
@@ -51,7 +59,6 @@ class PinFormState extends State<PinForm> {
       key: _formKey,
       child: Column(
         children: [
-          
           TextFormField(
             controller: _titleController,
             decoration: const InputDecoration(labelText: 'Title'),
@@ -61,6 +68,41 @@ class PinFormState extends State<PinForm> {
               }
               return null;
             },
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: _markerPosition ?? const LatLng(45.521563, -122.677433),
+                initialZoom: 13.0,
+                onTap: (tapPosition, point) {
+                  setState(() {
+                    _markerPosition = point;
+                  });
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                ),
+                if (_markerPosition != null)
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: _markerPosition!,
+                        width: 80.0,
+                        height: 80.0,
+                        child: const Icon(
+                          Icons.location_on,
+                          size: 40.0,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(

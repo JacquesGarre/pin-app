@@ -35,7 +35,7 @@ class PinListView extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final pin = controller.pins[index];
               return ListTile(
-                title: Text(pin.title),
+                title: Text("${pin.title} : ${pin.latitude}, ${pin.longitude}"),
                                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
