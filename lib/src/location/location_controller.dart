@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/location/location_service.dart';
 
 class LocationController with ChangeNotifier {
@@ -21,5 +24,4 @@ class LocationController with ChangeNotifier {
     }
     return await _locationService.getCurrentLocation();
   }
-
 }

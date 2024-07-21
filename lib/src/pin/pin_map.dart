@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/location/location_controller.dart';
+import 'package:pinz/src/pin/pin_map_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
@@ -13,6 +14,7 @@ class PinMap extends StatefulWidget {
   final LatLng? initialPosition;
   final void Function(LatLng) onMarkerChanged;
   final bool readOnly;
+
 
   const PinMap(
       {super.key,
@@ -29,6 +31,7 @@ class PinMapState extends State<PinMap> {
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
   bool _isLoading = true;
+  bool _isTouched = false;
   double _heading = 0;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
@@ -53,18 +56,11 @@ class PinMapState extends State<PinMap> {
   Future<void> _setCurrentLocation() async {
     final locationController =
         Provider.of<LocationController>(context, listen: false);
-    await locationController.requestLocationPermission();
-    if (locationController.permissionGranted) {
-      final position = await locationController.getCurrentLocation();
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    final position = await locationController.getCurrentLocation();
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      _isLoading = false;
+    });
   }
 
   void _listenForLocationUpdates() {
@@ -89,28 +85,10 @@ class PinMapState extends State<PinMap> {
 
   void _updateMap() {
     _mapReadyCompleter.future.then((_) {
-      if (_currentLocation!=null && widget.readOnly) {
+      if (_currentLocation!=null && widget.readOnly && !_isTouched) {
         _mapController.moveAndRotate(_currentLocation!, _mapController.camera.zoom, -_heading);
       }
     });
-  }
-
-
-  double _calculateBearing(LatLng from, LatLng to) {
-    final double lat1 = from.latitude * pi / 180.0;
-    final double lon1 = from.longitude * pi / 180.0;
-    final double lat2 = to.latitude * pi / 180.0;
-    final double lon2 = to.longitude * pi / 180.0;
-    final double dLon = lon2 - lon1;
-    final double y = sin(dLon) * cos(lat2);
-    final double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
-    final double bearing = atan2(y, x);
-    return (bearing * 180.0 / pi + 360.0) % 360.0;
-  }
-
-  double _calculateDistance(LatLng from, LatLng to) {
-    const Distance distance = Distance();
-    return distance.as(LengthUnit.Meter, from, to);
   }
 
   LatLng _initialCenter() {
@@ -130,10 +108,10 @@ class PinMapState extends State<PinMap> {
     }
 
     final double bearing = _markerPosition != null && _currentLocation != null
-        ? _calculateBearing(_currentLocation!, _markerPosition!)
+        ? PinMapUtils.calculateBearing(_currentLocation!, _markerPosition!)
         : 0.0;
     final double distance = _markerPosition != null && _currentLocation != null
-        ? _calculateDistance(_currentLocation!, _markerPosition!)
+        ? PinMapUtils.calculateDistance(_currentLocation!, _markerPosition!)
         : 0.0;
 
     return Column(
@@ -149,6 +127,11 @@ class PinMapState extends State<PinMap> {
                 if (!_mapReadyCompleter.isCompleted) {
                   _mapReadyCompleter.complete();
                 }
+              },
+              onPointerDown: (event, point) => {
+                setState(() {
+                  _isTouched = true;
+                })
               },
               onTap: widget.readOnly
                   ? null
