@@ -3,8 +3,8 @@ class Pin {
 
   final int id;
   final String title;
-  final double? latitude;
-  final double? longitude;
+  final double latitude;
+  final double longitude;
 
   Map<String, dynamic> toJson() => {
     'id': id,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/pin/pin.dart';
+import 'package:pinz/src/pin/pin_map.dart';
 
 class PinDetailsView extends StatelessWidget {
   const PinDetailsView({super.key, required this.pin});
@@ -13,9 +15,16 @@ class PinDetailsView extends StatelessWidget {
       appBar: AppBar(
         title: Text(pin.title),
       ),
-      body: Center(
-        child: Text(pin.title),
-      ),
+      body: Column(
+        children: [          
+          Expanded(
+            child: PinMap(
+              initialPosition: LatLng(pin.latitude, pin.longitude),
+              onMarkerChanged: (position) {},
+              readOnly: true,
+            ),
+          ),]
+        )
     );
   }
 }

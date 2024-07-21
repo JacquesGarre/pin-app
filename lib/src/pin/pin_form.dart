@@ -3,6 +3,7 @@ import 'package:pinz/src/pin/pin.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pinz/src/pin/pin_map.dart';
 
 class PinForm extends StatefulWidget {
   final Pin? pin;
@@ -18,15 +19,14 @@ class PinFormState extends State<PinForm> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   LatLng? _markerPosition;
+  String? _markerError;
 
   @override
   void initState() {
     super.initState();
     if (widget.pin != null) {
       _titleController.text = widget.pin!.title;
-      if (widget.pin!.latitude != null && widget.pin!.longitude != null) {
-        _markerPosition = LatLng(widget.pin!.latitude!, widget.pin!.longitude!);
-      }
+      _markerPosition = LatLng(widget.pin!.latitude, widget.pin!.longitude);
     }
   }
 
@@ -38,11 +38,17 @@ class PinFormState extends State<PinForm> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      if (_markerPosition == null) {
+        setState(() {
+          _markerError = 'Please place a marker on the map';
+        });
+        return;
+      }
       final newPin = Pin(
         widget.pin?.id ?? DateTime.now().millisecondsSinceEpoch,
         _titleController.text,
-        _markerPosition?.latitude,
-        _markerPosition?.longitude,
+        _markerPosition!.latitude,
+        _markerPosition!.longitude,
       );
       if (widget.pin == null) {
         widget.controller.addPin(newPin);
@@ -71,42 +77,24 @@ class PinFormState extends State<PinForm> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter:
-                    _markerPosition ?? const LatLng(45.521563, -122.677433),
-                initialZoom: 13.0,
-                onTap: (tapPosition, point) {
-                  setState(() {
-                    _markerPosition = point;
-                  });
-                },
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: const ['a', 'b', 'c'],
-                ),
-                if (_markerPosition != null)
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: _markerPosition!,
-                        width: 80.0,
-                        height: 80.0,
-                        child: const Icon(
-                          Icons.location_on,
-                          size: 40.0,
-                          color: Colors.red,
-                        ),
-                        rotate: true
-                      ),
-                    ],
-                  ),
-              ],
+            child: PinMap(
+              initialPosition: _markerPosition,
+              onMarkerChanged: (position) {
+                setState(() {
+                  _markerPosition = position;
+                  _markerError = null;
+                });
+              },
             ),
           ),
+          if (_markerError != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _markerError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _submit,
