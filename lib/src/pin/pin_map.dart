@@ -43,7 +43,7 @@ class PinMapState extends State<PinMap> {
       children: [
         TileLayer(
           urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
+          subdomains: const ['a', 'b', 'c'],
           userAgentPackageName: 'com.example.app',
         ),
         if (_markerPosition != null)

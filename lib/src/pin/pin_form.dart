@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pinz/src/pin/pin.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/pin/pin_map.dart';
 

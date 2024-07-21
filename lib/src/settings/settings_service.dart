@@ -1,17 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// A service that stores and retrieves user settings.
-///
-/// By default, this class does not persist user settings. If you'd like to
-/// persist the user settings locally, use the shared_preferences package. If
-/// you'd like to store settings on a web server, use the http package.
 class SettingsService {
-  /// Loads the User's preferred ThemeMode from local or remote storage.
-  Future<ThemeMode> themeMode() async => ThemeMode.system;
 
-  /// Persists the user's preferred ThemeMode to local or remote storage.
-  Future<void> updateThemeMode(ThemeMode theme) async {
-    // Use the shared_preferences package to persist settings locally or the
-    // http package to persist settings over the network.
+  static const String _settingsStorageKey = 'settings';
+
+  Future<ThemeMode> themeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? theme = prefs.getString(_settingsStorageKey);
+    switch (theme) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+      default:
+        return ThemeMode.system;
+    }
   }
+
+  Future<void> updateThemeMode(ThemeMode theme) async {
+    final prefs = await SharedPreferences.getInstance();
+    String themeString = 'system';
+    switch (theme) {
+      case ThemeMode.light:
+        themeString = 'light';
+      case ThemeMode.dark:
+        themeString = 'dark';
+      case ThemeMode.system:
+      default:
+        themeString = 'system';
+    }
+    await prefs.setString(_settingsStorageKey, themeString);
+  }
+
 }
