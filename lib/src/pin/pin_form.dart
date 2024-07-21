@@ -36,13 +36,11 @@ class PinFormState extends State<PinForm> {
         widget.pin?.id ?? DateTime.now().millisecondsSinceEpoch,
         _titleController.text,
       );
-
       if (widget.pin == null) {
         widget.controller.addPin(newPin);
       } else {
-        //widget.controller.updatePin(newPin);
+        widget.controller.updatePin(newPin);
       }
-
       Navigator.of(context).pop(newPin);
     }
   }
@@ -53,6 +51,7 @@ class PinFormState extends State<PinForm> {
       key: _formKey,
       child: Column(
         children: [
+          
           TextFormField(
             controller: _titleController,
             decoration: const InputDecoration(labelText: 'Title'),

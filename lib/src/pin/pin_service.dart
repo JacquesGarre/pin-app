@@ -25,4 +25,28 @@ class PinService {
     await prefs.setString(_pinsStorageKey, pinsJson);
   }
 
+  Future<void> updatePin(Pin pin) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<Pin> currentPins = await pins();
+    final index = currentPins.indexWhere((pin) => pin.id == pin.id);
+    if (index == -1) {
+      return;
+    }
+    currentPins[index] = pin;
+    final String pinsJson = jsonEncode(currentPins.map((pin) => pin.toJson()).toList());
+    await prefs.setString(_pinsStorageKey, pinsJson);
+  }
+
+  Future<void> deletePin(Pin pin) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<Pin> currentPins = await pins();
+    final index = currentPins.indexWhere((pin) => pin.id == pin.id);
+    if (index == -1) {
+      return;
+    }
+    currentPins.removeAt(index);
+    final String pinsJson = jsonEncode(currentPins.map((pin) => pin.toJson()).toList());
+    await prefs.setString(_pinsStorageKey, pinsJson);
+  }
+
 }
