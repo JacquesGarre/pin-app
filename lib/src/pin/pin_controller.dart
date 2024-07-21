@@ -6,9 +6,9 @@ class PinController with ChangeNotifier {
   PinController(this._pinService);
 
   final PinService _pinService;
-  late []<Pin> _pins;
+  late List<Pin> _pins;
 
-  []<Pin> get pins => _pins;
+  List<Pin> get pins => _pins;
 
   Future<void> loadPins() async {
     _pins = await _pinService.pins();

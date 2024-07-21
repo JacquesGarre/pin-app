@@ -1,11 +1,12 @@
 import 'package:pinz/src/pin/pin.dart';
 
 class PinService {
-  Future<Set<List<Pin>>> pins() async => {
-        [
-          const Pin(1, 'Home'),
-          const Pin(2, 'Groceries'),
-          const Pin(3, 'Start of hike')
-        ]
-      };
+  Future<List<Pin>> pins() async {
+    const List<Pin> pins = [
+      Pin(1, 'Home'),
+      Pin(2, 'Groceries'),
+      Pin(3, 'Start of hike')
+    ];
+    return pins;
+  }
 }
