@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pinz/src/pin/pin.dart';
+import 'package:pinz/src/pin/pin_controller.dart';
 
 class PinForm extends StatefulWidget {
   final Pin? pin;
+  final PinController controller;
 
-  const PinForm({super.key, this.pin});
+  const PinForm({super.key, this.pin, required this.controller});
 
   @override
   PinFormState createState() => PinFormState();
@@ -34,8 +36,13 @@ class PinFormState extends State<PinForm> {
         widget.pin?.id ?? DateTime.now().millisecondsSinceEpoch,
         _titleController.text,
       );
-      // Handle the form submission (e.g., save the pin)
-      print('Pin saved: ${newPin.title}');
+
+      if (widget.pin == null) {
+        widget.controller.addPin(newPin);
+      } else {
+        //widget.controller.updatePin(newPin);
+      }
+
       Navigator.of(context).pop(newPin);
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pinz/src/pin/pin_add_view.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
+import 'package:provider/provider.dart';
 import '../settings/settings_view.dart';
 import 'pin_details_view.dart';
 
@@ -25,21 +26,26 @@ class PinListView extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        restorationId: 'PinListView',
-        itemCount: controller.pins.length,
-        itemBuilder: (BuildContext context, int index) {
-          final pin = controller.pins[index];
-          return ListTile(
-              title: Text(pin.title),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PinDetailsView(pin: pin),
-                  ),
-                );
-              });
+      body: Consumer<PinController>(
+        builder: (context, controller, child) {
+          return ListView.builder(
+            restorationId: 'PinListView',
+            itemCount: controller.pins.length,
+            itemBuilder: (BuildContext context, int index) {
+              final pin = controller.pins[index];
+              return ListTile(
+                title: Text(pin.title),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PinDetailsView(pin: pin),
+                    ),
+                  );
+                },
+              );
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

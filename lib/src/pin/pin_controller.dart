@@ -15,4 +15,10 @@ class PinController with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addPin(Pin pin) async {
+    _pins.add(pin);
+    notifyListeners();    
+    await _pinService.addPin(pin);
+  }
+
 }
