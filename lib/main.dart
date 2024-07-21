@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pinz/src/location/location_controller.dart';
+import 'package:pinz/src/location/location_service.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
 import 'package:pinz/src/pin/pin_service.dart';
 import 'src/app.dart';
@@ -11,6 +13,7 @@ void main() async {
   
   final settingsController = SettingsController(SettingsService());
   final pinController = PinController(PinService());
+  final locationController = LocationController(LocationService());
 
   await settingsController.loadSettings();
   await pinController.loadPins();
@@ -20,10 +23,12 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => settingsController),
         ChangeNotifierProvider(create: (_) => pinController),
+        ChangeNotifierProvider(create: (_) => locationController),
       ],
       child: PinApp(
         settingsController: settingsController,
         pinController: pinController,
+        locationController: locationController,
       ),
     ),
   );

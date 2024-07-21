@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pinz/src/location/location_controller.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
 
 import 'pin/pin_list_view.dart';
@@ -12,10 +13,12 @@ class PinApp extends StatelessWidget {
     super.key,
     required this.settingsController,
     required this.pinController,
+    required this.locationController,
   });
 
   final SettingsController settingsController;
   final PinController pinController;
+  final LocationController locationController;
 
   @override
   Widget build(BuildContext context) {
