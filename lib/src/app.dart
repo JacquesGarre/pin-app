@@ -71,8 +71,6 @@ class PinApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case PinDetailsView.routeName:
-                    return const PinDetailsView();
                   case PinListView.routeName:
                   default:
                     return PinListView(controller: pinController);

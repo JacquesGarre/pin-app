@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pinz/src/pin/pin_add_view.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
-
 import '../settings/settings_view.dart';
 import 'pin_details_view.dart';
 
-/// Displays a list of Pins.
 class PinListView extends StatelessWidget {
   const PinListView({super.key, required this.controller});
 
@@ -32,15 +31,27 @@ class PinListView extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           final pin = controller.pins[index];
           return ListTile(
-            title: Text(pin.title),
-            onTap: () {
-              Navigator.restorablePushNamed(
-                context,
-                PinDetailsView.routeName,
-              );
-            }
+              title: Text(pin.title),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PinDetailsView(pin: pin),
+                  ),
+                );
+              });
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PinAddView(),
+            ),
           );
         },
+        child: const Icon(Icons.add),
       ),
     );
   }
