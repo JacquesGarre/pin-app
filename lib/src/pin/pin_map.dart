@@ -32,7 +32,7 @@ class PinMapState extends State<PinMap> {
   double _heading = 0;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
-  Completer<void> _mapReadyCompleter = Completer<void>();
+  final Completer<void> _mapReadyCompleter = Completer<void>();
 
   @override
   void initState() {
