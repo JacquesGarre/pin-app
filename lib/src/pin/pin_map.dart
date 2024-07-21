@@ -5,6 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/location/location_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_compass/flutter_compass.dart';
+
 
 class PinMap extends StatefulWidget {
   final LatLng? initialPosition;
@@ -26,12 +28,14 @@ class PinMapState extends State<PinMap> {
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
   bool _isLoading = true;
+  double _heading = 0;
 
   @override
   void initState() {
     super.initState();
     _markerPosition = widget.initialPosition;
     _setCurrentLocation();
+    _initCompass();
   }
 
   Future<void> _setCurrentLocation() async {
@@ -49,6 +53,14 @@ class PinMapState extends State<PinMap> {
         _isLoading = false;
       });
     }
+  }
+
+  void _initCompass() {
+    FlutterCompass.events?.listen((event) {
+      setState(() {
+        _heading = event.heading ?? 0;
+      });
+    });
   }
 
   double _calculateBearing(LatLng from, LatLng to) {
@@ -86,6 +98,7 @@ class PinMapState extends State<PinMap> {
       options: MapOptions(
         initialCenter: _initialCenter(),
         initialZoom: 13.0,
+        initialRotation: -_heading,
         onTap: widget.readOnly
             ? null
             : (tapPosition, point) {
