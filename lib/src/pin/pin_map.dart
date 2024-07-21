@@ -31,19 +31,22 @@ class PinMapState extends State<PinMap> {
   bool _isLoading = true;
   double _heading = 0;
   StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<CompassEvent>? _headingStreamSubscription;
+  Completer<void> _mapReadyCompleter = Completer<void>();
 
   @override
   void initState() {
     super.initState();
     _markerPosition = widget.initialPosition;
     _setCurrentLocation();
-    _initCompass();
+    _listenForHeadingUpdates();
     _listenForLocationUpdates();
   }
 
   @override
   void dispose() {
     _positionStreamSubscription?.cancel();
+    _headingStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -69,17 +72,29 @@ class PinMapState extends State<PinMap> {
         Geolocator.getPositionStream().listen((Position position) {
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
+        _updateMap();
       });
     });
   }
 
-  void _initCompass() {
-    FlutterCompass.events?.listen((event) {
+  void _listenForHeadingUpdates() {
+    _headingStreamSubscription = 
+        FlutterCompass.events?.listen((event) {
       setState(() {
         _heading = event.heading ?? 0;
+        _updateMap();
       });
     });
   }
+
+  void _updateMap() {
+    _mapReadyCompleter.future.then((_) {
+      if (_currentLocation!=null && widget.readOnly) {
+        _mapController.moveAndRotate(_currentLocation!, _mapController.camera.zoom, -_heading);
+      }
+    });
+  }
+
 
   double _calculateBearing(LatLng from, LatLng to) {
     final double lat1 = from.latitude * pi / 180.0;
@@ -130,6 +145,11 @@ class PinMapState extends State<PinMap> {
               initialCenter: _initialCenter(),
               initialZoom: 17.0,
               initialRotation: -_heading,
+              onMapReady: () {
+                if (!_mapReadyCompleter.isCompleted) {
+                  _mapReadyCompleter.complete();
+                }
+              },
               onTap: widget.readOnly
                   ? null
                   : (tapPosition, point) {
@@ -172,6 +192,7 @@ class PinMapState extends State<PinMap> {
                         size: 40.0,
                         color: Colors.red,
                       ),
+                      rotate: true
                     ),
                 ],
               ),
