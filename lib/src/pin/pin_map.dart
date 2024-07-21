@@ -31,7 +31,7 @@ class PinMapState extends State<PinMap> {
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
   bool _isLoading = true;
-  bool _isTouched = false;
+
   double _heading = 0;
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<CompassEvent>? _headingStreamSubscription;
@@ -85,7 +85,8 @@ class PinMapState extends State<PinMap> {
 
   void _updateMap() {
     _mapReadyCompleter.future.then((_) {
-      if (_currentLocation!=null && widget.readOnly && !_isTouched) {
+      bool followLocation = Provider.of<LocationController>(context, listen: false).followLocation;
+      if (_currentLocation!=null && widget.readOnly && followLocation) {
         _mapController.moveAndRotate(_currentLocation!, _mapController.camera.zoom, -_heading);
       }
     });
@@ -129,8 +130,8 @@ class PinMapState extends State<PinMap> {
                 }
               },
               onPointerDown: (event, point) => {
-                setState(() {
-                  _isTouched = true;
+               setState(() {
+                  Provider.of<LocationController>(context, listen: false).setFollowLocation(false);
                 })
               },
               onTap: widget.readOnly

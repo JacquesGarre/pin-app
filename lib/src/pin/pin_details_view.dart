@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pinz/src/location/location_controller.dart';
 import 'package:pinz/src/pin/pin.dart';
 import 'package:pinz/src/pin/pin_map.dart';
+import 'package:provider/provider.dart';
 
 class PinDetailsView extends StatelessWidget {
   const PinDetailsView({super.key, required this.pin});
@@ -24,7 +26,14 @@ class PinDetailsView extends StatelessWidget {
               readOnly: true,
             ),
           ),]
-        )
+        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Provider.of<LocationController>(context, listen: false)
+              .setFollowLocation(true);
+        },
+        child: const Icon(Icons.my_location),
+      ),
     );
   }
 }

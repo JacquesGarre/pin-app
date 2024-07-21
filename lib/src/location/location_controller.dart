@@ -13,6 +13,9 @@ class LocationController with ChangeNotifier {
   late bool _permissionGranted;
   bool get permissionGranted => _permissionGranted;
 
+  bool _followLocation = false;
+  bool get followLocation => _followLocation;
+
   Future<void> requestLocationPermission() async {
     _permissionGranted = await _locationService.requestLocationPermission();
     notifyListeners();
@@ -24,4 +27,10 @@ class LocationController with ChangeNotifier {
     }
     return await _locationService.getCurrentLocation();
   }
+
+  void setFollowLocation(bool value) {
+    _followLocation = value;
+    notifyListeners();
+  }
+
 }
