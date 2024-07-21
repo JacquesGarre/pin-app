@@ -73,7 +73,8 @@ class PinFormState extends State<PinForm> {
           Expanded(
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: _markerPosition ?? const LatLng(45.521563, -122.677433),
+                initialCenter:
+                    _markerPosition ?? const LatLng(45.521563, -122.677433),
                 initialZoom: 13.0,
                 onTap: (tapPosition, point) {
                   setState(() {
@@ -83,7 +84,8 @@ class PinFormState extends State<PinForm> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: const ['a', 'b', 'c'],
                 ),
                 if (_markerPosition != null)
@@ -98,6 +100,7 @@ class PinFormState extends State<PinForm> {
                           size: 40.0,
                           color: Colors.red,
                         ),
+                        rotate: true
                       ),
                     ],
                   ),
