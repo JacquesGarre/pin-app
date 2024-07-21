@@ -30,9 +30,9 @@ class PinListView extends StatelessWidget {
         restorationId: 'PinListView',
         itemCount: controller.pins.length,
         itemBuilder: (BuildContext context, int index) {
-          final item = controller.pins[index];
+          final pin = controller.pins[index];
           return ListTile(
-            title: Text(item.title),
+            title: Text(pin.title),
             onTap: () {
               Navigator.restorablePushNamed(
                 context,
