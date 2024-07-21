@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -33,7 +35,8 @@ class PinMapState extends State<PinMap> {
   }
 
   Future<void> _setCurrentLocation() async {
-    final locationController = Provider.of<LocationController>(context, listen: false);
+    final locationController =
+        Provider.of<LocationController>(context, listen: false);
     await locationController.requestLocationPermission();
     if (locationController.permissionGranted) {
       final position = await locationController.getCurrentLocation();
@@ -48,15 +51,40 @@ class PinMapState extends State<PinMap> {
     }
   }
 
+  double _calculateBearing(LatLng from, LatLng to) {
+    final double lat1 = from.latitude * pi / 180.0;
+    final double lon1 = from.longitude * pi / 180.0;
+    final double lat2 = to.latitude * pi / 180.0;
+    final double lon2 = to.longitude * pi / 180.0;
+    final double dLon = lon2 - lon1;
+    final double y = sin(dLon) * cos(lat2);
+    final double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+    final double bearing = atan2(y, x);
+    return (bearing * 180.0 / pi + 360.0) % 360.0;
+  }
+
+  LatLng _initialCenter() {
+    LatLng center = const LatLng(45.521563, -122.677433);
+    if (widget.readOnly) {
+      center = _currentLocation ?? _markerPosition ?? center;
+    } else {
+      center = _markerPosition ?? center;
+    }
+    return center;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+    final double bearing = _markerPosition != null && _currentLocation != null
+        ? _calculateBearing(_currentLocation!, _markerPosition!)
+        : 0.0;
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: _markerPosition ??  _currentLocation ?? const LatLng(45.521563, -122.677433),
+        initialCenter: _initialCenter(),
         initialZoom: 13.0,
         onTap: widget.readOnly
             ? null
@@ -75,17 +103,20 @@ class PinMapState extends State<PinMap> {
         ),
         MarkerLayer(
           markers: [
-            if (_currentLocation != null)
+            if (_currentLocation != null && widget.readOnly)
               Marker(
                   point: _currentLocation!,
                   width: 40.0,
                   height: 40.0,
-                  child: const Icon(
-                    Icons.circle,
-                    size: 20.0,
-                    color: Colors.blue,
+                  child: Transform.rotate(
+                    angle: bearing * pi / 180,
+                    child: const Icon(
+                      Icons.swipe_up_alt,
+                      size: 50.0,
+                      color: Colors.blue,
+                    ),
                   ),
-                  rotate: true),
+                  rotate: false),
             if (_markerPosition != null)
               Marker(
                   point: _markerPosition!,
