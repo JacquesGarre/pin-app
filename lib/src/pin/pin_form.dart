@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pinz/src/location/location_controller.dart';
 import 'package:pinz/src/pin/pin.dart';
 import 'package:pinz/src/pin/pin_controller.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pinz/src/pin/pin_map.dart';
+import 'package:provider/provider.dart';
 
 class PinForm extends StatefulWidget {
   final Pin? pin;
@@ -19,6 +21,7 @@ class PinFormState extends State<PinForm> {
   final _titleController = TextEditingController();
   LatLng? _markerPosition;
   String? _markerError;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -26,6 +29,26 @@ class PinFormState extends State<PinForm> {
     if (widget.pin != null) {
       _titleController.text = widget.pin!.title;
       _markerPosition = LatLng(widget.pin!.latitude, widget.pin!.longitude);
+      _isLoading = false;
+    } else {
+      _setCurrentLocation();
+    }
+  }
+
+  Future<void> _setCurrentLocation() async {
+    final locationController = Provider.of<LocationController>(context, listen: false);
+    await locationController.requestLocationPermission();
+    if (locationController.permissionGranted) {
+      final position = await locationController.getCurrentLocation();
+      setState(() {
+        _markerPosition = LatLng(position.latitude, position.longitude);
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _markerError = 'Location permission is required to set the default location.';
+        _isLoading = false;
+      });
     }
   }
 
@@ -60,7 +83,9 @@ class PinFormState extends State<PinForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Form(
       key: _formKey,
       child: Column(
         children: [
